@@ -9,17 +9,44 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    let SESSION = NSURLSession.sharedSession()
+    
+    @IBOutlet weak var urlTxt: UITextField!
+    @IBOutlet weak var dataLbl: UILabel!
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+    @IBAction func requestTapped(sender: UIButton!) {
+        let url = urlTxt.text != nil && urlTxt.text != "" ? urlTxt.text! : "http://swapi.co/api/people/1/"
+        dataLbl.text = ""
+        
+        print(url)
+        webRequest(url)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func webRequest(urlString: String) {
+        guard let url = NSURL(string: urlString) else {
+            dataLbl.text = "no valid url"
+            return
+        }
+        
+        SESSION.dataTaskWithURL(url) { (data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+            guard let data = data else {
+                self.dataLbl.text = "no data"
+                return
+            }
+            
+            do {
+                let json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
+                
+                print(json)
+            } catch {
+                self.dataLbl.text = "could not read data"
+                return
+            }
+        }.resume()
+        
+        self.dataLbl.text = "see console"
     }
-
 
 }
 
