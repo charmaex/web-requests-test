@@ -14,10 +14,19 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var urlTxt: UITextField!
     @IBOutlet weak var dataLbl: UILabel!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        requestTapped(self)
+    }
 
-    @IBAction func requestTapped(sender: UIButton!) {
-        let url = urlTxt.text != nil && urlTxt.text != "" ? urlTxt.text! : "http://swapi.co/api/people/1/"
+    @IBAction func requestTapped(sender: AnyObject) {
+        var url = urlTxt.text != nil && urlTxt.text != "" ? urlTxt.text! : "http://swapi.co/api/people/1/"
         dataLbl.text = ""
+        
+        //overwriting url to parse data
+        url = "http://swapi.co/api/people/1/"
         
         print(url)
         webRequest(url)
@@ -38,7 +47,15 @@ class ViewController: UIViewController {
             do {
                 let json = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
                 
-                print(json)
+                if let jsonDict = json as? [String: AnyObject] {
+                
+                    if let name = jsonDict["name"] as? String {
+                        let parsedClass = ClassToParseData(name: name)
+                        
+                        print(parsedClass.name)
+                    }
+                }
+                
             } catch {
                 self.dataLbl.text = "could not read data"
                 return
